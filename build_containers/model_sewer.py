@@ -1,7 +1,6 @@
 import argparse
 import numpy as np
 import pandas as pd
-import pickle as pkl
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from scipy.integrate import solve_ivp
@@ -11,25 +10,34 @@ from pathlib import Path
 
 # Load flow data
 parser = argparse.ArgumentParser()
-parser.add_argument("input", type=Path, help="Path to input .pkl file")
+parser.add_argument("input", type=Path, help="Path to downloaded .txt file")
+parser.add_argument("--t_min", type=float, default=360)
+parser.add_argument("--t_max", type=float, default=380)
+parser.add_argument("--sub_areas", type=int, default=4)
 args = parser.parse_args()
 
-input_path = args.input
-work_dir = input_path.parent
+data_dir = args.input.parent
+t_min = args.t_min
+t_max = args.t_max
+sub_areas = args.sub_areas
 
-with open(input_path, "br") as fh:
-    flow_data = pkl.load(fh).loc[:, ["Q_0"]]
+flow_data = pd.read_csv(
+    args.input,
+    sep=r"\s+",
+    header=None,
+    usecols=[0, 15],
+)
+
+flow_data.columns = ["time", "Q_0"]
+flow_data = flow_data.set_index("time")
 
 # Analysis interval
-t_min = 360  # d
-t_max = 380  # d
 flow_data = flow_data[flow_data.index > t_min]
 flow_data = flow_data[flow_data.index < t_max]
 
 # Parameters
 A_total = 1100  # m2
 C_gain = 3000  # -
-sub_areas = 4
 A_sub = A_total / sub_areas
 
 # Solver inputs
@@ -70,9 +78,8 @@ ax.plot(t_eval, flow_data[f"Q_{sub_areas}"], "-k", label=f"after {sub_areas} sub
 ax.set(ylabel="flow rate [m3/d]", xlabel="time [d]")
 fig.legend(loc="upper right")
 fig.savefig(
-    work_dir / f"sewer_flow_{sub_areas}_subareas.png", dpi=300, bbox_inches="tight"
+    data_dir / f"sewer_flow_{sub_areas}_subareas.png", dpi=300, bbox_inches="tight"
 )
 
 # Save results
-with open(work_dir / "_sewer_flow_data.pkl", "bw") as fh:
-    pkl.dump(flow_data, fh)
+flow_data.to_csv(data_dir / "_sewer_flow_data.csv")

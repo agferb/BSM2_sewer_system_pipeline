@@ -1,7 +1,6 @@
 import argparse
 import numpy as np
 import pandas as pd
-import pickle as pkl
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from scipy.integrate import solve_ivp
@@ -11,20 +10,32 @@ from pathlib import Path
 
 # Load flow data
 parser = argparse.ArgumentParser()
-parser.add_argument("solids_input", type=Path, help="Path to solids input .pkl file")
-parser.add_argument("flow_input", type=Path, help="Path to flow input .pkl file")
+parser.add_argument("input", type=Path, help="Path to downloaded .txt file")
+parser.add_argument(
+    "calc_flow", type=Path, help="Path to calculated flow data .csv file"
+)
+parser.add_argument("--t_min", type=float, default=360)
+parser.add_argument("--t_max", type=float, default=380)
 args = parser.parse_args()
 
-work_dir = args.solids_input.parent
+data_dir = args.input.parent
+t_min = args.t_min
+t_max = args.t_max
 
-with open(args.solids_input, "br") as fh:
-    solids_data = pkl.load(fh).loc[:, ["TSS_0"]] / 1000
-with open(args.flow_input, "br") as fh:
-    flow_data = pkl.load(fh)
+solids_data = pd.read_csv(
+    args.input,
+    sep=r"\s+",
+    header=None,
+    usecols=[0, 14],
+)
+
+solids_data.columns = ["time", "TSS_0"]
+solids_data = solids_data.set_index("time")
+solids_data.iloc[:, 0] = solids_data.iloc[:, 0] / 1000
+
+flow_data = pd.read_csv(args.calc_flow, index_col=0)
 
 # Analysis interval
-t_min = 360  # d
-t_max = 380  # d
 solids_data = solids_data[solids_data.index > t_min]
 solids_data = solids_data[solids_data.index < t_max]
 flow_data = flow_data[flow_data.index > t_min]
@@ -97,12 +108,11 @@ ax.plot(
 ax.set(ylabel="total solids [kg/m3]", xlabel="time [d]")
 fig.legend(loc="upper right")
 fig.savefig(
-    work_dir / f"sewer_flow_{sub_areas}_subareas.png", dpi=300, bbox_inches="tight"
+    data_dir / f"sewer_flow_{sub_areas}_subareas.png", dpi=300, bbox_inches="tight"
 )
 
 # Save results
-with open(work_dir / "_sewer_solids_data.pkl", "bw") as fh:
-    pkl.dump(flow_data, fh)
+solids_data.to_csv(data_dir / "_sewer_solids_data.csv")
 
 # if __name__ == "__main__":
 #     main()

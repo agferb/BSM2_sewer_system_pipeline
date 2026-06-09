@@ -3,17 +3,16 @@ FROM python:3.9-slim
 
 # Set a working directory and running folders
 WORKDIR /app
-RUN mkdir ./models
+RUN mkdir ./data
 
-# Copy requirements.txt and train.py to the working directory
+# Copy requirements.txt and model_ffe.py to the working directory
 COPY requirements.txt .
 COPY model_ffe.py .
 
 # Install the Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Run the training script that generates the model
+# Run the first-flush model
 CMD ["python", "model_ffe.py"]
 
 # To run the container:
-# docker run --rm -w /app -v ./your/path/to/save/the/model:/app/models <ml_train:version>
