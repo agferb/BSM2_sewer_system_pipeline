@@ -107,12 +107,11 @@ ax.plot(
 )
 ax.set(ylabel="total solids [kg/m3]", xlabel="time [d]")
 fig.legend(loc="upper right")
-fig.savefig(
-    data_dir / f"sewer_flow_{sub_areas}_subareas.png", dpi=300, bbox_inches="tight"
-)
 
 # Save results
-solids_data.to_csv(data_dir / "_sewer_solids_data.csv")
-
-# if __name__ == "__main__":
-#     main()
+solids_data.to_csv(data_dir / f"solids_after_{sub_areas}_subareas_{t_min}-{t_max}.csv")
+fig.savefig(
+    data_dir / f"solids_after_{sub_areas}_subareas_{t_min}-{t_max}.png",
+    dpi=300,
+    bbox_inches="tight",
+)

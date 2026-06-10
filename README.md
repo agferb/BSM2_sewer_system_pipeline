@@ -1,7 +1,13 @@
+# Build and run get_data container
 docker build -f build_containers/Dockerfile.get_data -t get_bsm2_data:01.00 ./build_containers/
 docker run --rm -v ./data:/data get_bsm2_data:01.00
 
-python model_sewer.py path/to/input_data.pkl --t_min 360 --t_max 380 --sub_areas 4
+# Build and run sewer model container
+docker build -f build_containers/Dockerfile.model_sewer -t bsm2_model_sewer:01.00 ./build_containers/
+docker run --rm -v ./data:/data bsm2_model_sewer:01.00 /path/to/input_data.pkl --t_min 360 --t_max 380 --sub_areas 4
+
+# Build and run ffe model container
+docker build -f build_containers/Dockerfile.model_ffe -t bsm2_model_ffe:01.00 ./build_containers/
 python model_ffe.py path/to/_final_data_bsm2.pkl path/to/_sewer_flow_data.pkl --t_min 360 --t_max 380 --sub_areas 4
 
 use .filter to get dates that are bigger than 0 and smaller than 609

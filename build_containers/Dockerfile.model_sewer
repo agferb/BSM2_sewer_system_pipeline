@@ -2,7 +2,7 @@
 FROM python:3.9-slim
 
 # Set a working directory and running folders
-WORKDIR /app
+WORKDIR /
 RUN mkdir ./data
 
 # Copy requirements.txt and model_sewer.py to the working directory
@@ -13,6 +13,7 @@ COPY model_sewer.py .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Run the sewer model
-CMD ["python", "model_sewer.py"]
+ENTRYPOINT ["python", "model_sewer.py"]
+CMD []
 
 # To run the container:

@@ -2,7 +2,7 @@
 FROM python:3.9-slim
 
 # Set a working directory and running folders
-WORKDIR /app
+WORKDIR /
 RUN mkdir ./data
 
 # Copy requirements.txt and model_ffe.py to the working directory
@@ -13,6 +13,7 @@ COPY model_ffe.py .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Run the first-flush model
-CMD ["python", "model_ffe.py"]
+ENTRYPOINT ["python", "model_ffe.py"]
+CMD []
 
 # To run the container:

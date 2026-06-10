@@ -77,9 +77,11 @@ ax.plot(t_eval, flow_data["Q_0"], "--g", label="before sewer")
 ax.plot(t_eval, flow_data[f"Q_{sub_areas}"], "-k", label=f"after {sub_areas} sub-areas")
 ax.set(ylabel="flow rate [m3/d]", xlabel="time [d]")
 fig.legend(loc="upper right")
-fig.savefig(
-    data_dir / f"sewer_flow_{sub_areas}_subareas.png", dpi=300, bbox_inches="tight"
-)
 
 # Save results
-flow_data.to_csv(data_dir / "_sewer_flow_data.csv")
+flow_data.to_csv(data_dir / f"flow_after_{sub_areas}_subareas_{t_min}-{t_max}.csv")
+fig.savefig(
+    data_dir / f"flow_after_{sub_areas}_subareas_{t_min}-{t_max}.png",
+    dpi=300,
+    bbox_inches="tight",
+)
