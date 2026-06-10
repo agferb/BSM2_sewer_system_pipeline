@@ -18,6 +18,10 @@ The model outputs the following files:
 - `flow_after_n_subareas_t-min_t-max.png`: a time series plot of the input (upstream) flowrate and the flowrate downstream of the last sub-area.
 - `solids_after_n_subareas_t-min_t-max.csv`: a time series plot the input (upstream) total solids and the total solids downstream the last sub-area.
 
+## How to use
+
+Given the new restriction on VSC to pull docker images, the images can not be pulled from the dockerhub inside VSC. We hope soon this issue will be addressed and the pipeline can be run in the HPC. 
+
 ## Pipeline structure
 
 ### Process `bsm2_get_data`
