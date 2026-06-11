@@ -1,6 +1,6 @@
 process sewer_model {
   publishDir {"${params.outdir}/${sub_areas}_subareas/"}, mode: 'copy', overwrite: true
-  containerOptions { "--bind ${task.workDir}:/data" }   // Apptainer syntax
+  // containerOptions { "--bind ${task.workDir}:/data" }   // Apptainer syntax
   label 'low'
   container 'docker://aleitocu/bsm2_sewer_model:01.00'
   

@@ -1,7 +1,7 @@
 process ffe_model {
   publishDir {"${params.outdir}/${sub_areas}_subareas/"}, mode: 'copy', overwrite: true
   label 'low'
-  containerOptions { "--bind ${task.workDir}:/data" }   // Apptainer syntax
+  // containerOptions { "--bind ${task.workDir}:/data" }   // Apptainer syntax
   container 'docker://aleitocu/bsm2_ffe_model:01.00'
   
   input:

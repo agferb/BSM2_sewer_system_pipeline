@@ -10,7 +10,7 @@ BSM2 stands for *Benchmark Simulation Model no. 2*.
 
 ## Input and ouput files
 
-This is a benchmark pipeline, so there are no input files. The input time series is retrieved from the BSM2 online platform. The main input argument to be set is the number of sub-areas of the sewer system catchment (default is 4). The time range in which the analysis is made can also be changed, and it can be any interval in between [0, 609] days (default is [360, 380]). Remark that for long time intervals the analysis might take long to run and the figures with the results might be hard to interpret.
+This is a benchmark pipeline, so there are no input files. The input time series is retrieved from the BSM2 online platform. The main input argument to be set is the number of sub-areas of the sewer system catchment (default are 2, 4 and 8). The time range in which the analysis is made can also be changed, and it can be any interval in between [0, 609] days (default are [0, 40] and [360, 380]). Remark that for long time intervals the analysis might take long to run and the figures with the results might be hard to interpret.
 
 The model outputs the following files:
 - `flow_after_n_subareas_t-min_t-max.csv`: the input (upstream) flowrate (`Q_0`) and the flowrate downstream of each sub-area (`Q_i` for in [1, sub-areas]). Values are in m3/d.
@@ -20,7 +20,21 @@ The model outputs the following files:
 
 ## How to use
 
-Given the new restriction on VSC to pull docker images, the images can not be pulled from the dockerhub inside VSC. We hope soon this issue will be addressed and the pipeline can be run in the HPC.
+From inside the repository, the command to run the pipeline is:
+```bash
+nextflow run main.nf -profile apptainer # or -profile docker
+``` 
+
+From outside the repository it is possible to run the pipeline with:
+```bash
+nextflow run agferb/BSM2_sewer_system_pipeline -profile apptainer # or -profile docker
+```
+
+The arg `-profile` can specify the container engine (`apptainer` and `docker` enabled) and the computational power allocated (`low`, `medium` or `high`).
+
+The `-params-file` argument can also be set to a custom `params.json` file with user defined values for the parameters `sub_areas` and `t_interval`. Refer to the `params.json` file in the repository for the correct structure. The user can also define a different output directory other than `./data`.
+
+Given the new restriction on VSC to pull docker images, the images can not be pulled from the dockerhub inside VSC, therefore, the pipeline cannot be run from inside VSC. We hope soon this issue will be addressed and the pipeline can be run in the HPC.
 
 ## Pipeline structure
 
@@ -47,18 +61,11 @@ Given the new restriction on VSC to pull docker images, the images can not be pu
 - Input and output data is saved in a .csv file
 - A time series plot for a specific time range is generated as a .png file; default time range is from day 360 to day 380.
 
-# Build and run get_data container
-docker build -f build_containers/Dockerfile.get_data -t get_bsm2_data:01.00 ./build_containers/
-docker run --rm -v ./data:/data get_bsm2_data:01.00
+## Comments for the project requirements
 
-# Build and run sewer model container
-docker build -f build_containers/Dockerfile.model_sewer -t bsm2_model_sewer:01.00 ./build_containers/
-docker run --rm -v ./data:/data bsm2_model_sewer:01.00 /path/to/input_data.txt --t_min 360 --t_max 380 --sub_areas 4
+Given this pipeline covers a research where data pipelines and nextflow are not widesreap, there were no available related tools to integrate into it, so the 3 modules were made with custom tools. To see how each of the 3 container images used in each module were used, refer to the `./build_containers` folder.
 
-# Build and run ffe model container
-docker build -f build_containers/Dockerfile.model_ffe -t bsm2_model_ffe:01.00 ./build_containers/
-docker run --rm -v ./data:/data bsm2_model_ffe:01.00 /path/to/input_data.txt /path/to/calc_flow_data.csv --t_min 360 --t_max 380
-
-use .filter to get dates that are bigger than 0 and smaller than 609
-use .combine to generate tuples (t_min, t_max, sub_areas)
-use .filter to check if t_min < t_max in each tuple
+The 3 new operators used in this pipeline are:
+- `.from()`: extracts each value of a tuple into a channel input
+- `.filter()`: filters a channel with a defined rule
+- `.combine()`: creates a tuples channel mixing all inputs from 2 channels

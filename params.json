@@ -1,4 +1,5 @@
 {
+    "outdir": "${launchDir}/data",
     "sub_areas": [2, 4, 8],
     "t_interval": [[0, 40], [360, 380], [420, 440]]
 }

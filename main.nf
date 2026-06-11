@@ -1,15 +1,14 @@
 #!/usr/bin/env nextflow
 
-// Import the star indexing and alignment processes from the modules
-// ...
 
-
+// Params of the project
 params {
     outdir = "${launchDir}/data"
     sub_areas  = [2, 4, 8]
     t_interval = [[0, 40], [360, 380]]
 }
 
+// importing modules
 include { get_data } from "./modules/get_data"
 include { sewer_model } from "./modules/sewer_model"
 include { ffe_model } from "./modules/ffe_model"
@@ -22,10 +21,8 @@ workflow {
         GENERAL
     Results-folder   : ${params.outdir}
     ================================
-        INPUT & REFERENCES 
-    ================================
         MODELS
-    numer of sub-areas  : ${params.sub_areas}
+    number of sub-areas : ${params.sub_areas}
     analysis intervals  : ${params.t_interval}
     """
 
