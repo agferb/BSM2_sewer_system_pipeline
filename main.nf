@@ -5,79 +5,50 @@
 
 
 params {
-    // General parameters
-    datadir: Path = "${launchDir}/data1"
-    outdir: String = "${launchDir}/results"
-
-    // Input parameters
-    samplesheet: Path = "${launchDir}/samplesheet_project.csv"
-    
-    // fastp
-    qualified_quality_phred: Integer = 28
-    cut_tail: Boolean = true
-    length_required: Integer = 30
-    n_base_limit: Integer =  0
-    FW_PRIMER: String = "GTGCCAGCAGCCGCGGTAA"
-    RV_PRIMER: String = "GGACTACACGGGTTTCTAAT"
-
+    outdir = "${launchDir}/data"
+    sub_areas  = [2, 4, 8]
+    t_interval = [[0, 40], [360, 380]]
 }
 
-include { fastqc as fastqc_raw; fastqc as fastqc_trim } from "./modules/fastqc" //addParams(OUTPUT: fastqcOutputFolder)
-include { fastp } from "./modules/fastp"
-include { multiqc as multiqc_raw; multiqc as multiqc_trim } from "./modules/multiqc"
-include { dada2 } from "./modules/dada2"
+include { get_data } from "./modules/get_data"
+include { sewer_model } from "./modules/sewer_model"
+include { ffe_model } from "./modules/ffe_model"
 
 // Running a workflow with the defined processes here.  
 workflow {
     log.info """\
         LIST OF PARAMETERS
     ================================
-                GENERAL
-    Data-folder      : ${params.datadir}
+        GENERAL
     Results-folder   : ${params.outdir}
     ================================
         INPUT & REFERENCES 
-    Samplesheet      : ${params.samplesheet}
     ================================
-                FASTP
-    qualified_quality_phred : ${params.qualified_quality_phred}
-    cut_tail                : ${params.cut_tail}
-    length_required         : ${params.length_required}
-    n_base_limit            : ${params.n_base_limit}
-    adapter_sequence        : ${params.FW_PRIMER}
-    adapter_sequence_r2     : ${params.RV_PRIMER}
+        MODELS
+    numer of sub-areas  : ${params.sub_areas}
+    analysis intervals  : ${params.t_interval}
     """
-    // Also channels are being created. 
-    def read_pairs_ch = channel.fromPath( params.samplesheet, checkIfExists: true )
-        .splitCsv(header:true)
-        .map{ row -> tuple( row.sample, [file(row.fastq_1, checkIfExists: true), file(row.fastq_2, checkIfExists: true)] ) }
 
-    // QC on raw reads
-    fastqc_raw(read_pairs_ch)
+    // Get BSM2 data
+    get_data()
 
-    // Multi QC on results
-    multiqc_raw(fastqc_raw.out.fastqc_out.collect())
-        
-    // Fastp on QC results
-    fastp(read_pairs_ch,
-        params.qualified_quality_phred,
-        params.cut_tail,
-        params.length_required,
-        params.n_base_limit,
-        params.FW_PRIMER,
-        params.RV_PRIMER
-    )
+    // Transform model parameters to correct format
+    def sub_areas_ch = channel.from( params.sub_areas )
 
-    // Fast and multi QC on trimmed results
-    fastqc_trim(fastp.out.trim_FW_fq)
-    multiqc_trim(fastqc_trim.out.fastqc_out.collect())
+    def t_interval_ch = channel.from( params.t_interval )
+        .filter{tup -> tup[0] >= 0}
+        .filter{tup -> tup[1] <= 609}
 
-    // dada2 to generate plots
-    def dada2_input = fastp.out.trim_FW_fq.mix(fastp.out.trim_RV_fq)
-        .map{_sample, reads -> reads} // '_' is to ignore parameter
-        .collect()
-    dada2(dada2_input)
+    def parameters_ch = sub_areas_ch
+        .combine(t_interval_ch)
 
+    // Run sewer model
+    sewer_model(get_data.out.full_data, parameters_ch)
+
+    // Run first-flush model
+    ffe_model(get_data.out.full_data, sewer_model.out.flow_data, parameters_ch)
+
+    // End pipeline verbose
     workflow.onComplete = {
         println "Pipeline completed at: ${workflow.complete}"
         println "Time to complete workflow execution: ${workflow.duration}"

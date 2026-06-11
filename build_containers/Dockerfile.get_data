@@ -1,6 +1,6 @@
 FROM ubuntu:22.04
 
-WORKDIR /data
+WORKDIR /
 
 RUN apt-get update && apt-get install -y wget unzip && rm -rf /var/lib/apt/lists/*
 

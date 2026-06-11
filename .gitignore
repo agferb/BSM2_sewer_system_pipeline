@@ -2,4 +2,11 @@
 _*
 *.csv
 *.txt
+*.png
+.nextflow*
+
+# Folders to ignore
+.nextflow
 .venv
+.apptainer_cache
+work

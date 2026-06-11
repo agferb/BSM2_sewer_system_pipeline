@@ -20,7 +20,7 @@ The model outputs the following files:
 
 ## How to use
 
-Given the new restriction on VSC to pull docker images, the images can not be pulled from the dockerhub inside VSC. We hope soon this issue will be addressed and the pipeline can be run in the HPC. 
+Given the new restriction on VSC to pull docker images, the images can not be pulled from the dockerhub inside VSC. We hope soon this issue will be addressed and the pipeline can be run in the HPC.
 
 ## Pipeline structure
 

@@ -1,12 +1,13 @@
 process get_data {
   label 'low'
-  container 'docker://aleitocu/bsm2_get_data:01.00'
+  container 'docker://aleitocu/bsm2_get_data:02.00'
 
   output:
-  path("full_bsm2_data.txt"), emit: full_data
+  path("bsm2_full_data.txt"), emit: full_data
 
   script:
   """
+  /get_data.sh
   echo "Data imported succesfully."
   """
 }
