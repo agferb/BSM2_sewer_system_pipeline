@@ -16,7 +16,7 @@ The model outputs the following files:
 - `flow_after_n_subareas_t-min_t-max.csv`: the input (upstream) flowrate (`Q_0`) and the flowrate downstream of each sub-area (`Q_i` for in [1, sub-areas]). Values are in m3/d.
 - `solids_after_n_subareas_t-min_t-max.csv`: the input (upstream) total solids (`TSS_0`) and the total solids downstream the last sub-area (`Q_n` with n = # of sub-areas). Values are in kg/m3.
 - `flow_after_n_subareas_t-min_t-max.png`: a time series plot of the input (upstream) flowrate and the flowrate downstream of the last sub-area.
-- `solids_after_n_subareas_t-min_t-max.csv`: a time series plot the input (upstream) total solids and the total solids downstream the last sub-area.
+- `solids_after_n_subareas_t-min_t-max.png`: a time series plot the input (upstream) total solids and the total solids downstream the last sub-area.
 
 ## How to use
 
