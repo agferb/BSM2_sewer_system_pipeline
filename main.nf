@@ -43,7 +43,7 @@ workflow {
     sewer_model(get_data.out.full_data, parameters_ch)
 
     // Run first-flush model
-    ffe_model(get_data.out.full_data, sewer_model.out.flow_data, parameters_ch)
+    ffe_model(get_data.out.full_data, sewer_model.out.flow_data, sewer_model.out.output_params)
 
     // End pipeline verbose
     workflow.onComplete = {

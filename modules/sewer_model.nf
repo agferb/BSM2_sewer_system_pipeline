@@ -1,7 +1,7 @@
 process sewer_model {
   publishDir {"${params.outdir}/${sub_areas}_subareas/"}, mode: 'copy', overwrite: true
-  // containerOptions { "--bind ${task.workDir}:/data" }   // Apptainer syntax
   label 'low'
+  // containerOptions { "--bind ${task.workDir}:/data" }   // Apptainer syntax
   container 'docker://aleitocu/bsm2_sewer_model:01.00'
   
   input:
@@ -9,6 +9,7 @@ process sewer_model {
   tuple val(sub_areas), val(t_min), val(t_max)
 
   output:
+  tuple val(sub_areas), val(t_min), val(t_max), emit: output_params
   path("flow_after_${sub_areas}_subareas_*.csv"), emit: flow_data
   path("flow_after_${sub_areas}_subareas_*.png"), emit: flow_plot
 
